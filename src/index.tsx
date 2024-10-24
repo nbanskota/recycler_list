@@ -12,7 +12,8 @@ const LINKING_ERROR =
   '- You are not using Expo Go\n';
 
 type RecyclerListProps = {
-  color: string;
+  data: Array<any>;
+  columns?: number;
   style: ViewStyle;
 };
 

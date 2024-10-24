@@ -1,29 +1,24 @@
 {
   "compilerOptions": {
-    "rootDir": ".",
-    "paths": {
-      "recycler_list": ["./src/index"]
-    },
+    "rootDir": "./src",
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "jsx": "react-jsx",
-    "lib": ["ESNext"],
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
+    "lib": ["ES6", "DOM"],
+    "module": "ESNext", // Change to ESNext for ESM
+    "moduleResolution": "Node",
     "noEmit": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitReturns": true,
-    "noImplicitUseStrict": false,
-    "noStrictGenericChecks": false,
     "noUncheckedIndexedAccess": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,
-    "target": "ESNext",
-    "verbatimModuleSyntax": true
+    "target": "ES6",
+    "verbatimModuleSyntax": false
   }
 }

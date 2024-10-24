@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:id="@+id/rootContainer"
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content"
+  android:layout_margin="2dp"
+  android:background="@android:color/black"
+  android:focusable="true"
+  android:focusableInTouchMode="true"
+  android:orientation="vertical"
+  android:padding="3dp">
+
+  <LinearLayout
+    android:id="@+id/childContainer"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    android:orientation="horizontal"
+    android:padding="8dp">
+
+    <LinearLayout
+      android:layout_width="0dp"
+      android:layout_height="match_parent"
+      android:layout_marginEnd="8dp"
+      android:layout_weight="0.7"
+      android:background="@android:color/white"
+      android:orientation="vertical">
+
+      <TextView
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-condensed-medium"
+        android:text="Test"
+        android:textColor="@android:color/black"
+        android:textSize="20sp" />
+
+      <TextView
+        android:id="@+id/description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif"
+        android:textColor="@android:color/black"
+        android:text="Test Text Long text here"
+        android:textSize="16sp" />
+
+      <ProgressBar
+        style="@android:style/Widget.ProgressBar.Horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="4dp"
+        android:layout_marginTop="8dp"
+        android:progress="50"
+        android:progressBackgroundTint="@android:color/darker_gray"
+        android:progressTint="@android:color/holo_blue_light" />
+    </LinearLayout>
+
+    <LinearLayout
+      android:id="@+id/imageContainer"
+      android:layout_width="0dp"
+      android:layout_height="match_parent"
+      android:layout_weight="0.3"
+      android:background="@android:color/black">
+
+    </LinearLayout>
+  </LinearLayout>
+
+
+</LinearLayout>
