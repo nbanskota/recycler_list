@@ -1,27 +1,65 @@
+import { useEffect } from 'react';
 import {
   requireNativeComponent,
-  UIManager,
-  Platform,
-  type ViewStyle,
+  ViewStyle,
+  DeviceEventEmitter,
+  NativeSyntheticEvent,
 } from 'react-native';
-
-const LINKING_ERROR =
-  `The package 'recycler_list' doesn't seem to be linked. Make sure: \n\n` +
-  Platform.select({ ios: "- You have run 'pod install'\n", default: '' }) +
-  '- You rebuilt the app after installing the package\n' +
-  '- You are not using Expo Go\n';
 
 type RecyclerListProps = {
   data: Array<any>;
   columns?: number;
+  onItemPress?: (event: NativeSyntheticEvent<any>) => void;
+  onFocusChange?: (event: any) => void;
   style: ViewStyle;
 };
 
 const ComponentName = 'RecyclerListView';
 
-export const RecyclerListView =
-  UIManager.getViewManagerConfig(ComponentName) != null
-    ? requireNativeComponent<RecyclerListProps>(ComponentName)
-    : () => {
-        throw new Error(LINKING_ERROR);
-      };
+// Directly instantiate the native component with correct props
+const NativeRecyclerListView =
+  requireNativeComponent<RecyclerListProps>(ComponentName);
+
+const RecyclerListView = ({
+  data,
+  columns,
+  onItemPress,
+  onFocusChange,
+  style,
+}: RecyclerListProps) => {
+  useEffect(() => {
+    const subscription = DeviceEventEmitter.addListener(
+      'onItemPress',
+      (event) => {
+        if (onItemPress) {
+          onItemPress(event);
+        }
+      }
+    );
+    const subscription2 = DeviceEventEmitter.addListener(
+      'onFocusChange',
+      (event) => {
+        if (onFocusChange) {
+          onFocusChange(event);
+        }
+      }
+    );
+
+    return () => {
+      subscription.remove();
+      subscription2.remove();
+    };
+  }, [onItemPress, onFocusChange]);
+
+  return (
+    <NativeRecyclerListView
+      style={style}
+      data={data}
+      columns={columns}
+      onItemPress={onItemPress}
+      onFocusChange={onFocusChange}
+    />
+  );
+};
+
+export default RecyclerListView;
