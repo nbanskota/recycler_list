@@ -4,5 +4,5 @@ import android.view.View
 
 interface ItemActionListener<T> {
   fun onItemClicked(item: T, position: Int)
-  fun onItemFocused(view: View, position: Int, isFocused: Boolean)
+  fun onItemFocusChanged(view: View, position: Int, isFocused: Boolean)
 }

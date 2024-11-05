@@ -35,7 +35,11 @@ export default function App() {
     <View style={styles.container}>
       <RecyclerListView
         data={formattedData}
-        columns={3}
+        config={{
+          columnCount: 3,
+          direction: 1,
+          itemSpan: [2, 1, 1],
+        }}
         onItemPress={handleItemPress}
         onFocusChange={handleFocusChange}
         style={styles.recyclerView}
@@ -49,7 +53,9 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'flex-end',
-    transform: [{ scale: 0.8 }],
+    transform: [{ scale: 1 }],
+    padding: 80,
+    backgroundColor: 'black',
   },
   recyclerView: {
     flex: 1,

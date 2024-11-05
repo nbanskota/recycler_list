@@ -8,7 +8,11 @@ import {
 
 type RecyclerListProps = {
   data: Array<any>;
-  columns?: number;
+  config: {
+    columnCount?: number;
+    direction: 1 | 0;
+    itemSpan?: number[];
+  };
   onItemPress?: (event: NativeSyntheticEvent<any>) => void;
   onFocusChange?: (event: any) => void;
   style: ViewStyle;
@@ -22,7 +26,7 @@ const NativeRecyclerListView =
 
 const RecyclerListView = ({
   data,
-  columns,
+  config,
   onItemPress,
   onFocusChange,
   style,
@@ -55,7 +59,7 @@ const RecyclerListView = ({
     <NativeRecyclerListView
       style={style}
       data={data}
-      columns={columns}
+      config={config}
       onItemPress={onItemPress}
       onFocusChange={onFocusChange}
     />

@@ -1,21 +1,21 @@
 package com.recyclerlist
 
 import android.os.Build
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
-import androidx.leanback.widget.BrowseFrameLayout
+import androidx.recyclerview.widget.DefaultItemAnimator
 import com.facebook.react.bridge.ReadableArray
-import com.facebook.react.bridge.WritableMap
+import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.uimanager.SimpleViewManager
 import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.annotations.ReactProp
-import com.recyclerlist.utils.InputDetector
 
 
-class RecyclerListViewManager : SimpleViewManager<View>(), InputDetector.InputListener {
+class RecyclerListViewManager : SimpleViewManager<View>() {
   override fun getName() = "RecyclerListView"
+  private lateinit var recyclerListView: RecyclerList
 
-  private var focusManager : FocusManager? = null
 
   companion object{
     const val ON_ITEM_PRESS: String = "onItemPress"
@@ -23,12 +23,9 @@ class RecyclerListViewManager : SimpleViewManager<View>(), InputDetector.InputLi
   }
 
 
-
   override fun createViewInstance(reactContext: ThemedReactContext): View {
-    focusManager = FocusManager(reactContext, this)
 
-    val browseFrameLayout = BrowseFrameLayout(reactContext)
-    val recyclerView = RecyclerList(reactContext, focusManager!!).apply {
+    this.recyclerListView = RecyclerList(reactContext).apply {
       layoutParams = ViewGroup.LayoutParams(
         ViewGroup.LayoutParams.MATCH_PARENT,
         ViewGroup.LayoutParams.MATCH_PARENT
@@ -38,7 +35,9 @@ class RecyclerListViewManager : SimpleViewManager<View>(), InputDetector.InputLi
       }
       isFocusableInTouchMode = true
     }
-    return recyclerView
+    val animator = DefaultItemAnimator()
+    recyclerListView.setItemAnimator(animator)
+    return recyclerListView
   }
 
   override fun getExportedCustomBubblingEventTypeConstants(): Map<String, Map<String, String>> {
@@ -54,14 +53,30 @@ class RecyclerListViewManager : SimpleViewManager<View>(), InputDetector.InputLi
   }
 
   // Add a method to set the column count from React Native
-  @ReactProp(name = "columns")
-  fun setColumnCount(view: RecyclerList, columns: Int) {
-   view.setColumnCount(columns)
-  }
+  @ReactProp(name = "config")
+  fun setConfig(view: RecyclerList, config: ReadableMap)  {
+    var columnCount = 1
+    var direction = 0
+    var spans = arrayListOf<Int>()
+    if (config.hasKey("columnCount")) {
+      columnCount = config.getInt("columnCount")
+    }
 
-  override fun dispatchUserAction(writableMap: WritableMap?) {
-    TODO("Not yet implemented")
+    if (config.hasKey("direction")) {
+       direction = config.getInt("direction")
+      direction = if(direction >= 1) 1 else 0
+    }
+    if (config.hasKey("itemSpan")) {
+       config.getArray("itemSpan").also { readableArray ->
+        readableArray?.let {
+          for(item in it.toArrayList()){
+            spans.add((item as Double).toInt())
+          }
+        }
+      }
+    }
+    Log.d("RecyclerList", "setColumnCount: $columnCount $direction $spans")
+   view.setColumnCount(columnCount, direction, spans)
   }
-
 
 }

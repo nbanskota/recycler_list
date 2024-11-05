@@ -47,6 +47,7 @@
         android:paddingEnd="4dp"
         android:paddingBottom="2dp"
         android:text="on now"
+        android:visibility="invisible"
         android:textColor="@android:color/white"
         android:textSize="8sp" />
 
@@ -94,7 +95,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:contentDescription="Preview image"
-        android:scaleType="fitXY" />
+        android:scaleType="fitCenter" />
 
     </LinearLayout>
 
