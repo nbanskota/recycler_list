@@ -1,7 +1,11 @@
 package com.recyclerlist
 
 import CustomLayoutManager
+import android.graphics.Rect
+import android.util.Log
 import android.view.View
+import android.widget.LinearLayout
+import android.widget.ProgressBar
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.facebook.infer.annotation.Verify
@@ -16,7 +20,9 @@ import com.recyclerlist.utils.Emitter
 import com.recyclerlist.utils.IntervalRunner
 import com.recyclerlist.utils.jsonToObject
 import com.recyclerlist.utils.toJson
+import com.recyclerlist.utils.updateStartAndEndTimes
 import kotlinx.coroutines.MainScope
+import java.text.SimpleDateFormat
 import java.time.Instant
 import java.util.Date
 
@@ -31,7 +37,17 @@ class RecyclerList(private val context: ThemedReactContext) : RecyclerView(conte
   private var items = listOf<RenderItem<LiveChannelTile>>()
   private val debounce = Debounce(MainScope())
   private val emitter = Emitter(context)
-  private lateinit var intervalRunner: IntervalRunner
+  private var intervalRunner: IntervalRunner? = null
+
+  init {
+    this.id = generateViewId()
+
+  }
+
+  override fun addOnAttachStateChangeListener(listener: OnAttachStateChangeListener?) {
+    Log.d(TAG, "addOnAttachStateChangeListener: ")
+    super.addOnAttachStateChangeListener(listener)
+  }
 
   fun setData(data: ReadableArray) {
     val items = mutableListOf<RenderItem<LiveChannelTile>>()
@@ -40,6 +56,7 @@ class RecyclerList(private val context: ThemedReactContext) : RecyclerView(conte
       val objects = jsonToObject<RenderItem<LiveChannelTile>>(jsonString)
       items.add(objects)
     }
+    updateStartAndEndTimes(items)
     this.items = items
     this.layoutManager = CustomLayoutManager(context, totalSpanCount, orientation, false)
     this.layoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
@@ -65,7 +82,10 @@ class RecyclerList(private val context: ThemedReactContext) : RecyclerView(conte
     }
     setLayoutManager(this.layoutManager)
     this.recyclerListAdapter = RecyclerListAdapter(items, this)
+    this.recyclerListAdapter?.setColumnCount(this.columnCount)
     this.setAdapter(recyclerListAdapter)
+    updateProgress()
+    intervalRunner?.start()
 
   }
 
@@ -120,6 +140,11 @@ class RecyclerList(private val context: ThemedReactContext) : RecyclerView(conte
 
   }
 
+  override fun onFocusChanged(gainFocus: Boolean, direction: Int, previouslyFocusedRect: Rect?) {
+    super.onFocusChanged(gainFocus, direction, previouslyFocusedRect)
+    Log.d(TAG, "onFocusChanged: $gainFocus $direction $previouslyFocusedRect")
+  }
+
   private fun findViewByPosition(position: Int?): View? {
     return position?.let { this.findViewHolderForAdapterPosition(it)?.itemView }
   }
@@ -128,6 +153,7 @@ class RecyclerList(private val context: ThemedReactContext) : RecyclerView(conte
     val visibleViews = mutableListOf<View>()
     val firstVisiblePosition = this.layoutManager.findFirstVisibleItemPosition()
     val lastVisiblePosition = this.layoutManager.findLastVisibleItemPosition()
+    Log.d(TAG, "getVisibleViews: firstVisiblePosition: $firstVisiblePosition lastVisiblePosition : ${lastVisiblePosition}")
     for (i in firstVisiblePosition..lastVisiblePosition) {
       findViewByPosition(i)?.let {
         visibleViews.add(it)
@@ -137,24 +163,61 @@ class RecyclerList(private val context: ThemedReactContext) : RecyclerView(conte
     return visibleViews
   }
 
-  fun updateProgress() {
-    intervalRunner = IntervalRunner(1000L) {
+
+  private fun onProgressComplete(position: Int) {
+  }
+
+
+  private fun updateProgress() {
+    intervalRunner = IntervalRunner(5000L) {
       val visibleItems = getVisibleViews()
       visibleItems.forEach {
-        val item = recyclerListAdapter?.getItem(layoutManager.getPosition(it))
-        // val progress =
+        if (it.isShown) {
+          val position = layoutManager.getPosition(it)
+          if (recyclerListAdapter?.getItemViewType(position) != RecyclerListAdapter.TYPE_GROUP_HEADER) {
+            val item = recyclerListAdapter?.getItem(position)
+            getLivePlayerProgress(
+              item?.liveShow?.startTime ?: 0,
+              item?.liveShow?.endTime ?: 0,
+              onProgressComplete = ::onProgressComplete,
+              onProgress = { progress ->
+                val progressBar = it.findViewById<ProgressBar>(R.id.progress_bar)
+                progressBar.progress = (progress * 100).toInt()
+              },
+              position
+            )
 
+          }
+        }
       }
-
     }
   }
 
-  fun getLivePlayerProgress(startTime: Long, endTime: Long): Long {
-    val timeFormatter = "hh:mm a"
-    val startDate = Date.from(Instant.ofEpochMilli(startTime))
-    return 0L
+  private fun getLivePlayerProgress(
+    startTime: Long,
+    endTime: Long,
+    onProgressComplete: (Int) -> Unit,
+    onProgress :(Double) -> Unit,
+    position: Int
+  ) {
+
+    val currentTime = System.currentTimeMillis() / 1000
+    val totalDuration = endTime - startTime
+    val elapsed = currentTime - startTime
+
+    val progress = elapsed.toDouble() / totalDuration.toDouble()
+    if (currentTime >= endTime) {
+      onProgress(1.0)
+      onProgressComplete(position)
+    }else {
+      onProgress(progress)
+    }
   }
 
+
+  override fun onScrolled(dx: Int, dy: Int) {
+    super.onScrolled(dx, dy * 10)
+  }
 
 //  private var lastKeyDownTime: Long = 0
 //  private val debounceInterval = 80L
@@ -172,7 +235,6 @@ class RecyclerList(private val context: ThemedReactContext) : RecyclerView(conte
 //    return false
 //  }
 
-
- }
+}
 
 

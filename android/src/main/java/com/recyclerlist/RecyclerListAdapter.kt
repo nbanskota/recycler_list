@@ -18,9 +18,12 @@ import com.recyclerlist.model.LiveChannelType
 import com.recyclerlist.model.LiveShowMetadata
 import com.recyclerlist.model.RenderItem
 import com.recyclerlist.utils.Debounce
+import com.recyclerlist.utils.ViewAnimator
 import com.recyclerlist.utils.animateViewOnPress
 import com.recyclerlist.utils.formatTimeRange
 import kotlinx.coroutines.MainScope
+import java.time.Instant
+import java.util.Date
 
 
 class RecyclerListAdapter(
@@ -34,6 +37,9 @@ class RecyclerListAdapter(
   private var viewRefs = mutableMapOf<Int, View>()
   private var indexMap = mutableMapOf<Int, Int>()  //
   private var focusedIndex: Int? = null
+  private var columnCount: Int = 1
+
+  private val viewAnimator = ViewAnimator()
 
   init {
     setHasStableIds(true)
@@ -61,6 +67,10 @@ class RecyclerListAdapter(
     return indexMap
   }
 
+  fun setColumnCount(count: Int) {
+    this.columnCount = count
+  }
+
   private fun createItemViewIndexMap() {
     var indexMap = mutableMapOf<Int, Int>() //item index and viewIndex
     var headerCounter = 0
@@ -84,15 +94,6 @@ class RecyclerListAdapter(
       }
     }
   }
-
-//  override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int, payloads: MutableList<Any>) {
-//    super.onBindViewHolder(holder, position, payloads)
-//    if (holder is ItemViewHolder && payloads.isNotEmpty()) {
-//      val isFocused = payloads[0] as Boolean
-//      holder.updateRow(isFocused)
-//    }
-//  }
-
 
   override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
     super.onDetachedFromRecyclerView(recyclerView)
@@ -164,7 +165,6 @@ class RecyclerListAdapter(
     private val pressInterval = 1000
 
     private fun getLiveShow(liveChannelTile: LiveChannelTile): LiveShowMetadata? {
-
       val item = when (liveChannelTile.type) {
         LiveChannelType.ON_NOW.value -> liveChannelTile.liveShow
         LiveChannelType.ON_NEXT.value -> liveChannelTile.nextShow
@@ -181,20 +181,15 @@ class RecyclerListAdapter(
       progressBar.progress = progress
     }
 
-
     private fun updateRow(isFocused: Boolean, position: Int) {
       val itemIndex = indexMap.entries.find { it.value == position }?.key ?: return
-
-      val upperIndex = (itemIndex - 3).coerceAtLeast(0)
-      val lowerIndex = (itemIndex + 3).coerceAtMost(itemCount - 1)
-      val selectedItemRowIndex = itemIndex.div(3)
+      val upperIndex = (itemIndex - this@RecyclerListAdapter.columnCount - 1).coerceAtLeast(0)
+      val lowerIndex = (itemIndex + this@RecyclerListAdapter.columnCount - 1).coerceAtMost(itemCount - 1)
+      val selectedItemRowIndex = itemIndex.div(this@RecyclerListAdapter.columnCount)
       for (i in upperIndex..lowerIndex) {
         val view = viewRefs[indexMap[i]]?.findViewById<TextView>(R.id.tag)
-        if(i.div(3) == selectedItemRowIndex){
-          view?.visibility = if (isFocused) View.VISIBLE else View.INVISIBLE
-        }
+        if (i.div(this@RecyclerListAdapter.columnCount) == selectedItemRowIndex) view?.visibility = if (isFocused) View.VISIBLE else View.INVISIBLE
       }
-
     }
 
     fun bind(
@@ -223,9 +218,11 @@ class RecyclerListAdapter(
       if (liveChannelTile.type != LiveChannelType.ON_NOW.value) {
         imageContainer.visibility = View.GONE
         logoImage.visibility = View.GONE
+        progressBar.visibility = View.GONE
       } else {
         imageContainer.visibility = View.VISIBLE
         logoImage.visibility = View.VISIBLE
+        progressBar.visibility = View.VISIBLE
         try {
           Glide.with(logoImage.context)
             .load(liveChannelTile.logoUrl + "?image-profile=livetv_channel_logo")
@@ -241,6 +238,9 @@ class RecyclerListAdapter(
       descriptionTextView.text = formatTimeRange(data?.startTime, data?.endTime)
       tagTextView.text = liveChannelTile.type
       tagTextView.setBackgroundColor(Color.parseColor(liveChannelTile.color))
+      progressBar.progress =
+        ((System.currentTimeMillis() / 1000 - (data?.startTime ?: 0L)).toDouble() / ((data?.endTime ?: 1L) - (data?.startTime ?: 0L)).toDouble()).coerceIn(0.0, 1.0).times(100)
+          .toInt()
 
       itemView.setOnClickListener {
         val currentTime = System.currentTimeMillis()
@@ -252,12 +252,17 @@ class RecyclerListAdapter(
       }
 
       itemView.setOnFocusChangeListener { view, isFocused ->
-        if(view.isShown) actionListener.onItemFocusChanged(view, position, isFocused)
+        if (view.isShown) {
+          actionListener.onItemFocusChanged(view, position, isFocused)
+
+        }
         if (isFocused) {
+          viewAnimator.animateScale(view, 1F, 1.01F, 1F, 1.01F, 300L)
           logoImage.background = selectedViewBackground
           childContainer.background = selectedViewBackground
           focusedIndex = position
         } else {
+          viewAnimator.animateScale(view, 1.01F, 1F, 1.01F, 1F, 300L)
           logoImage.background = unselectedViewBackground
           childContainer.background = unselectedViewBackground
         }
