@@ -14,6 +14,19 @@
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		24ED0077BDB7D896D706A185 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 36240213190404B9AD6F73F5 /* PrivacyInfo.xcprivacy */; };
 		7699B88040F8A987B510C191 /* libPods-RecyclerListExample-RecyclerListExampleTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19F6CBCC0A4E27FBF8BF4A61 /* libPods-RecyclerListExample-RecyclerListExampleTests.a */; };
+		A3B21694BDC24CE88CA6E976 /* arial_regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B4E1999A29C42678A382E31 /* arial_regular.ttf */; };
+		DB454D9950434B6FBF0DEA60 /* barlow_extrabold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 492BB15835E2400FA779C573 /* barlow_extrabold.ttf */; };
+		02BD0A135911438ABF61D605 /* barlow_medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 969E06EC4D3A476683D21C63 /* barlow_medium.ttf */; };
+		32EF9253A4C04B11AF720075 /* barlow_regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B41776A386443F1A1CDD907 /* barlow_regular.ttf */; };
+		E2EC57FF0B3B442E9AE91CEA /* barlow_semibold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 49C7F497206F4F40BBE326D6 /* barlow_semibold.ttf */; };
+		3CA9A26B1E874762AD9142EC /* barlowcondensed_regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3A5A00340CBC4F0DA0D0A737 /* barlowcondensed_regular.ttf */; };
+		EA1AEE7E15A64894805C1FB8 /* barlowsemicondensed_extrabold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E63F845A5E2944C9A9C40FC0 /* barlowsemicondensed_extrabold.ttf */; };
+		14E9BAC708C8466C8284EDB8 /* barlowsemicondensed_extrabold_regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 860DC6F8D27641A29F6BD3C3 /* barlowsemicondensed_extrabold_regular.ttf */; };
+		0D154CA2C6A246D5A07C7F84 /* barlowsemicondensed_medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 73F9621874A94BEDB88A17BE /* barlowsemicondensed_medium.ttf */; };
+		150E84EAB5C944E786C47BCE /* barlowsemicondensed_medium_regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = EE440C887BF646F4B4AFFFF6 /* barlowsemicondensed_medium_regular.ttf */; };
+		A035A11AF5BD4C168F951F82 /* barlowsemicondensed_regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4AE26847681F4824A7685A55 /* barlowsemicondensed_regular.ttf */; };
+		3E13F5AE93C048AD86DCE3FA /* barlowsemicondensed_semibold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 226F86BEC5C54FDD85842E73 /* barlowsemicondensed_semibold.ttf */; };
+		D0186EAA728849FF93F1DDAE /* barlowsemicondensed_semibold_regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D21FDC1CB80543AEB06A366A /* barlowsemicondensed_semibold_regular.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -45,6 +58,19 @@
 		5DCACB8F33CDC322A6C60F78 /* libPods-RecyclerListExample.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-RecyclerListExample.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		89C6BE57DB24E9ADA2F236DE /* Pods-RecyclerListExample-RecyclerListExampleTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RecyclerListExample-RecyclerListExampleTests.release.xcconfig"; path = "Target Support Files/Pods-RecyclerListExample-RecyclerListExampleTests/Pods-RecyclerListExample-RecyclerListExampleTests.release.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		2B4E1999A29C42678A382E31 /* arial_regular.ttf */ = {isa = PBXFileReference; name = "arial_regular.ttf"; path = "../assets/fonts/arial_regular.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		492BB15835E2400FA779C573 /* barlow_extrabold.ttf */ = {isa = PBXFileReference; name = "barlow_extrabold.ttf"; path = "../assets/fonts/barlow_extrabold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		969E06EC4D3A476683D21C63 /* barlow_medium.ttf */ = {isa = PBXFileReference; name = "barlow_medium.ttf"; path = "../assets/fonts/barlow_medium.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		2B41776A386443F1A1CDD907 /* barlow_regular.ttf */ = {isa = PBXFileReference; name = "barlow_regular.ttf"; path = "../assets/fonts/barlow_regular.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		49C7F497206F4F40BBE326D6 /* barlow_semibold.ttf */ = {isa = PBXFileReference; name = "barlow_semibold.ttf"; path = "../assets/fonts/barlow_semibold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		3A5A00340CBC4F0DA0D0A737 /* barlowcondensed_regular.ttf */ = {isa = PBXFileReference; name = "barlowcondensed_regular.ttf"; path = "../assets/fonts/barlowcondensed_regular.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		E63F845A5E2944C9A9C40FC0 /* barlowsemicondensed_extrabold.ttf */ = {isa = PBXFileReference; name = "barlowsemicondensed_extrabold.ttf"; path = "../assets/fonts/barlowsemicondensed_extrabold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		860DC6F8D27641A29F6BD3C3 /* barlowsemicondensed_extrabold_regular.ttf */ = {isa = PBXFileReference; name = "barlowsemicondensed_extrabold_regular.ttf"; path = "../assets/fonts/barlowsemicondensed_extrabold_regular.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		73F9621874A94BEDB88A17BE /* barlowsemicondensed_medium.ttf */ = {isa = PBXFileReference; name = "barlowsemicondensed_medium.ttf"; path = "../assets/fonts/barlowsemicondensed_medium.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		EE440C887BF646F4B4AFFFF6 /* barlowsemicondensed_medium_regular.ttf */ = {isa = PBXFileReference; name = "barlowsemicondensed_medium_regular.ttf"; path = "../assets/fonts/barlowsemicondensed_medium_regular.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		4AE26847681F4824A7685A55 /* barlowsemicondensed_regular.ttf */ = {isa = PBXFileReference; name = "barlowsemicondensed_regular.ttf"; path = "../assets/fonts/barlowsemicondensed_regular.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		226F86BEC5C54FDD85842E73 /* barlowsemicondensed_semibold.ttf */ = {isa = PBXFileReference; name = "barlowsemicondensed_semibold.ttf"; path = "../assets/fonts/barlowsemicondensed_semibold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		D21FDC1CB80543AEB06A366A /* barlowsemicondensed_semibold_regular.ttf */ = {isa = PBXFileReference; name = "barlowsemicondensed_semibold_regular.ttf"; path = "../assets/fonts/barlowsemicondensed_semibold_regular.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -124,6 +150,7 @@
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				BBD78D7AC51CEA395F1C20DB /* Pods */,
+				E127CE3F9B9B42819F8D86AB /* Resources */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -149,6 +176,27 @@
 			);
 			path = Pods;
 			sourceTree = "<group>";
+		};
+		E127CE3F9B9B42819F8D86AB /* Resources */ = {
+			isa = "PBXGroup";
+			children = (
+				2B4E1999A29C42678A382E31 /* arial_regular.ttf */,
+				492BB15835E2400FA779C573 /* barlow_extrabold.ttf */,
+				969E06EC4D3A476683D21C63 /* barlow_medium.ttf */,
+				2B41776A386443F1A1CDD907 /* barlow_regular.ttf */,
+				49C7F497206F4F40BBE326D6 /* barlow_semibold.ttf */,
+				3A5A00340CBC4F0DA0D0A737 /* barlowcondensed_regular.ttf */,
+				E63F845A5E2944C9A9C40FC0 /* barlowsemicondensed_extrabold.ttf */,
+				860DC6F8D27641A29F6BD3C3 /* barlowsemicondensed_extrabold_regular.ttf */,
+				73F9621874A94BEDB88A17BE /* barlowsemicondensed_medium.ttf */,
+				EE440C887BF646F4B4AFFFF6 /* barlowsemicondensed_medium_regular.ttf */,
+				4AE26847681F4824A7685A55 /* barlowsemicondensed_regular.ttf */,
+				226F86BEC5C54FDD85842E73 /* barlowsemicondensed_semibold.ttf */,
+				D21FDC1CB80543AEB06A366A /* barlowsemicondensed_semibold_regular.ttf */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+			path = "";
 		};
 /* End PBXGroup section */
 
@@ -246,6 +294,19 @@
 			files = (
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				24ED0077BDB7D896D706A185 /* PrivacyInfo.xcprivacy in Resources */,
+				A3B21694BDC24CE88CA6E976 /* arial_regular.ttf in Resources */,
+				DB454D9950434B6FBF0DEA60 /* barlow_extrabold.ttf in Resources */,
+				02BD0A135911438ABF61D605 /* barlow_medium.ttf in Resources */,
+				32EF9253A4C04B11AF720075 /* barlow_regular.ttf in Resources */,
+				E2EC57FF0B3B442E9AE91CEA /* barlow_semibold.ttf in Resources */,
+				3CA9A26B1E874762AD9142EC /* barlowcondensed_regular.ttf in Resources */,
+				EA1AEE7E15A64894805C1FB8 /* barlowsemicondensed_extrabold.ttf in Resources */,
+				14E9BAC708C8466C8284EDB8 /* barlowsemicondensed_extrabold_regular.ttf in Resources */,
+				0D154CA2C6A246D5A07C7F84 /* barlowsemicondensed_medium.ttf in Resources */,
+				150E84EAB5C944E786C47BCE /* barlowsemicondensed_medium_regular.ttf in Resources */,
+				A035A11AF5BD4C168F951F82 /* barlowsemicondensed_regular.ttf in Resources */,
+				3E13F5AE93C048AD86DCE3FA /* barlowsemicondensed_semibold.ttf in Resources */,
+				D0186EAA728849FF93F1DDAE /* barlowsemicondensed_semibold_regular.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

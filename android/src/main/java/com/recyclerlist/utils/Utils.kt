@@ -16,24 +16,21 @@ import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 
-fun formatTimeRange(startTime: Long?, endTime: Long?): String {
+fun formatTimeRange(startTime: Long?, endTime: Long?): String? {
   if (startTime == null || endTime == null) {
-    return ""
+    return null
   }
-  // Define the formatter for the desired output
+
   val formatter = SimpleDateFormat("hh:mm a", Locale.getDefault()).apply {
     timeZone = TimeZone.getDefault() // Set the time zone
   }
 
-  // Convert timestamps to Date
   val startDate = Date(startTime * 1000) // Convert seconds to milliseconds
   val endDate = Date(endTime * 1000)
 
-  // Format the times
   val startFormatted = formatter.format(startDate)
   val endFormatted = formatter.format(endDate)
 
-  // Return the combined formatted string
   return "$startFormatted - $endFormatted"
 }
 

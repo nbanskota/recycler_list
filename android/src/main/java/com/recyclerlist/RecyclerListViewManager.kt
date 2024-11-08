@@ -35,8 +35,8 @@ class RecyclerListViewManager : SimpleViewManager<View>() {
       }
       isFocusableInTouchMode = true
     }
-    val animator = DefaultItemAnimator()
-    recyclerListView.setItemAnimator(animator)
+//    val animator = DefaultItemAnimator()
+//    recyclerListView.setItemAnimator(animator)
     return recyclerListView
   }
 

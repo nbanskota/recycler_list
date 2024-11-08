@@ -17,9 +17,9 @@ data class LiveChannelTile(
   val publisherId: String,
   val isMemberGated: Boolean,
   val schedule: List<LiveShowMetadata>,
-  val liveShow: LiveShowMetadata? = null,
-  val nextShow: LiveShowMetadata? = null,
-  val laterShow: LiveShowMetadata? = null,
+  var liveShow: LiveShowMetadata? = null,
+  var nextShow: LiveShowMetadata? = null,
+  var laterShow: LiveShowMetadata? = null,
   val relatedCategoryIndex: Int? = null
 ){
 
@@ -27,6 +27,29 @@ data class LiveChannelTile(
     val gson = Gson()
     return gson.toJson(this)
   }
+
+  fun deepCopy(): LiveChannelTile {
+    return LiveChannelTile(
+      type = this.type,
+      liveShow = this.liveShow?.copy(),
+      nextShow = this.nextShow?.copy(),
+      laterShow = this.laterShow?.copy(),
+      schedule = this.schedule.map { it.copy() },
+      key = this.key,
+      name = this.name,
+      color = this.color,
+      logoUrl = this.logoUrl,
+      iconUrl = this.iconUrl,
+      nowOnUrl = this.nowOnUrl,
+      sponsorLogoUrl = this.sponsorLogoUrl,
+      slateUrl = this.slateUrl,
+      streamUrl = this.streamUrl,
+      streamKey = this.streamKey,
+      publisherId = this.publisherId,
+      isMemberGated = this.isMemberGated
+    )
+  }
+
 }
 
 enum class LiveChannelType(val value: String) {
@@ -42,11 +65,11 @@ enum class LiveChannelType(val value: String) {
 }
 
 data class LiveShowMetadata(
-  val id: String,
-  val title: String,
-  val description: String,
-  val dataUrl: String,
-  val iconUrl: String,
+  val id: String?,
+  val title: String?,
+  val description: String?,
+  val dataUrl: String?,
+  val iconUrl: String?,
   var startTime: Long,
   var endTime: Long,
   val posterImageUrl: String,
@@ -72,7 +95,7 @@ enum class CtaButtonType(val value: String) {
 
   companion object {
     fun fromValue(value: String): CtaButtonType? {
-      return CtaButtonType.entries.find { it.value == value }
+      return entries.find { it.value == value }
     }
   }
 }

@@ -4,7 +4,7 @@ package com.recyclerlist.model
 data class RenderItem<T>(
   var title: String? = null,
   val index: Int? = null,
-  var items: List<T> = listOf()
+  var items: MutableList<T> = mutableListOf()
 )
 //
 //data class Item<T>(

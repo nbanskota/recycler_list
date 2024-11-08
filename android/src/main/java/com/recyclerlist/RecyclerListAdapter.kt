@@ -10,8 +10,10 @@ import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.facebook.react.bridge.UiThreadUtil
 import com.recyclerlist.components.setBorder
 import com.recyclerlist.model.LiveChannelTile
 import com.recyclerlist.model.LiveChannelType
@@ -19,11 +21,8 @@ import com.recyclerlist.model.LiveShowMetadata
 import com.recyclerlist.model.RenderItem
 import com.recyclerlist.utils.Debounce
 import com.recyclerlist.utils.ViewAnimator
-import com.recyclerlist.utils.animateViewOnPress
 import com.recyclerlist.utils.formatTimeRange
 import kotlinx.coroutines.MainScope
-import java.time.Instant
-import java.util.Date
 
 
 class RecyclerListAdapter(
@@ -35,7 +34,7 @@ class RecyclerListAdapter(
   private val TAG = "RecyclerListAdapter"
   private val debounce = Debounce(MainScope())
   private var viewRefs = mutableMapOf<Int, View>()
-  private var indexMap = mutableMapOf<Int, Int>()  //
+  private var indexMap = mutableMapOf<Int, Int>()
   private var focusedIndex: Int? = null
   private var columnCount: Int = 1
 
@@ -93,7 +92,24 @@ class RecyclerListAdapter(
         createItemViewIndexMap()
       }
     }
+
   }
+
+  override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int, payloads: MutableList<Any>) {
+    if (payloads.isNotEmpty()) {
+      // Handle partial update with payload
+      val payload = payloads[0]
+      if (payload is LiveChannelTile) {
+        if (holder is ItemViewHolder) {
+          holder.updateData(payload)
+        }
+      }
+    } else {
+      super.onBindViewHolder(holder, position, payloads)
+    }
+
+  }
+
 
   override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
     super.onDetachedFromRecyclerView(recyclerView)
@@ -120,15 +136,20 @@ class RecyclerListAdapter(
     throw IllegalStateException("Invalid position")
   }
 
-
-  override fun getItemId(position: Int): Long {
-    return position.toLong()
+  fun setItem(position: Int, item: LiveChannelTile) {
+    Log.d(TAG, "setItem: ${item.liveShow?.title}")
+    var count = 0
+    for (group in items) {
+      if (position <= count + group.items.size) {
+        group.items[position - count - 1] = item
+        break
+      }
+      count += group.items.size + 1
+    }
   }
 
-  fun updateData(items: List<RenderItem<LiveChannelTile>>) {
-    this.items = items
-    this.notifyItemRangeChanged(0, items.count())
-
+  override fun getItemId(position: Int): Long {
+    return (1000 + position).toLong()
   }
 
   private fun isGroupHeader(position: Int): Boolean {
@@ -142,10 +163,6 @@ class RecyclerListAdapter(
 
   override fun getItemViewType(position: Int): Int {
     return if (isGroupHeader(position)) TYPE_GROUP_HEADER else TYPE_ITEM
-  }
-
-  fun getViewRefs(): MutableMap<Int, Int> {
-    return indexMap
   }
 
   inner class ItemViewHolder(private val itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -176,11 +193,6 @@ class RecyclerListAdapter(
       return item
     }
 
-    fun setProgress(progress: Int) {
-      progressBar.visibility = View.VISIBLE
-      progressBar.progress = progress
-    }
-
     private fun updateRow(isFocused: Boolean, position: Int) {
       val itemIndex = indexMap.entries.find { it.value == position }?.key ?: return
       val upperIndex = (itemIndex - this@RecyclerListAdapter.columnCount - 1).coerceAtLeast(0)
@@ -190,6 +202,26 @@ class RecyclerListAdapter(
         val view = viewRefs[indexMap[i]]?.findViewById<TextView>(R.id.tag)
         if (i.div(this@RecyclerListAdapter.columnCount) == selectedItemRowIndex) view?.visibility = if (isFocused) View.VISIBLE else View.INVISIBLE
       }
+    }
+
+    fun updateData(liveChannelTile: LiveChannelTile) {
+      val data = getLiveShow(liveChannelTile)
+      titleTextView.text = data?.title ?: "Updating soon"
+      descriptionTextView.text = formatTimeRange(data?.startTime, data?.endTime) ?: "Updating soon..."
+      tagTextView.text = liveChannelTile.type
+      progressBar.progress = ((System.currentTimeMillis() / 1000 - (data?.startTime ?: 0L)).toDouble() /
+        ((data?.endTime ?: 1L) - (data?.startTime ?: 0L)).toDouble()).coerceIn(0.0, 1.0).times(100).toInt()
+      try {
+        Glide.with(logoImage.context)
+          .load(liveChannelTile.logoUrl + "?image-profile=livetv_channel_logo")
+          .into(logoImage)
+        Glide.with(previewImage.context)
+          .load(data?.landscapeImageUrl + "?image-profile=live_now_card")
+          .into(previewImage)
+      } catch (exception: Exception) {
+        //The null pointer exception might occur when image is being loaded but the view is already unmounted from the screen
+      }
+
     }
 
     fun bind(
@@ -206,7 +238,6 @@ class RecyclerListAdapter(
       itemView.id = 1000 + position
 
       viewRefs[position] = itemView
-      val data = getLiveShow(liveChannelTile)
       val selectedViewBackground = setBorder(
         strokeWidth = Color.parseColor(liveChannelTile.color),
         borderColor = 2,
@@ -223,39 +254,25 @@ class RecyclerListAdapter(
         imageContainer.visibility = View.VISIBLE
         logoImage.visibility = View.VISIBLE
         progressBar.visibility = View.VISIBLE
-        try {
-          Glide.with(logoImage.context)
-            .load(liveChannelTile.logoUrl + "?image-profile=livetv_channel_logo")
-            .into(logoImage)
-          Glide.with(previewImage.context)
-            .load(data?.landscapeImageUrl + "?image-profile=live_now_card")
-            .into(previewImage)
-        } catch (exception: Exception) {
-          //The null pointer exception might occur when image is being loaded but the view is already unmounted from the screen
-        }
       }
-      titleTextView.text = data?.title ?: ""
-      descriptionTextView.text = formatTimeRange(data?.startTime, data?.endTime)
-      tagTextView.text = liveChannelTile.type
       tagTextView.setBackgroundColor(Color.parseColor(liveChannelTile.color))
-      progressBar.progress =
-        ((System.currentTimeMillis() / 1000 - (data?.startTime ?: 0L)).toDouble() / ((data?.endTime ?: 1L) - (data?.startTime ?: 0L)).toDouble()).coerceIn(0.0, 1.0).times(100)
-          .toInt()
+      updateData(liveChannelTile)
 
       itemView.setOnClickListener {
         val currentTime = System.currentTimeMillis()
         if ((currentTime - lastPressTime) > pressInterval) {
           lastPressTime = currentTime
-          animateViewOnPress(itemView)
-          actionListener.onItemClicked(liveChannelTile, position)
+          viewAnimator.animateScale(it, 1F, 0.99F, 1F, 0.99F, 50L) {
+            viewAnimator.animateScale(it, 0.99F, 1F, 0.99F, 1F, 50L) {
+              actionListener.onItemClicked(liveChannelTile, position)
+            }
+          }
         }
       }
 
       itemView.setOnFocusChangeListener { view, isFocused ->
-        if (view.isShown) {
-          actionListener.onItemFocusChanged(view, position, isFocused)
+        if (view.isShown) actionListener.onItemFocusChanged(view, position, isFocused)
 
-        }
         if (isFocused) {
           viewAnimator.animateScale(view, 1F, 1.01F, 1F, 1.01F, 300L)
           logoImage.background = selectedViewBackground
@@ -266,7 +283,6 @@ class RecyclerListAdapter(
           logoImage.background = unselectedViewBackground
           childContainer.background = unselectedViewBackground
         }
-
         updateRow(isFocused, position)
       }
     }
@@ -278,9 +294,18 @@ class RecyclerListAdapter(
     fun <T> bind(group: RenderItem<T>, position: Int) {
       itemView.id = 1000 + position
       viewRefs[position] = itemView
-      if (group.title == null) titleTextView.visibility = View.GONE else titleTextView.visibility =
-        View.VISIBLE
+      if (group.title == null) titleTextView.visibility = View.GONE else titleTextView.visibility = View.VISIBLE
       titleTextView.text = group.title
+    }
+  }
+
+  private class LiveChannelTileCallback : DiffUtil.ItemCallback<LiveChannelTile>(){
+    override fun areItemsTheSame(oldItem: LiveChannelTile, newItem: LiveChannelTile): Boolean {
+      return oldItem.liveShow?.startTime == newItem.liveShow?.startTime
+    }
+
+    override fun areContentsTheSame(oldItem: LiveChannelTile, newItem: LiveChannelTile): Boolean {
+      return oldItem == newItem
     }
   }
 }

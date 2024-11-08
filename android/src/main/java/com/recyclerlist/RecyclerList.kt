@@ -1,16 +1,16 @@
 package com.recyclerlist
 
 import CustomLayoutManager
-import android.graphics.Rect
 import android.util.Log
+import android.view.KeyEvent
 import android.view.View
-import android.widget.LinearLayout
 import android.widget.ProgressBar
+import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.facebook.infer.annotation.Verify
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReadableArray
+import com.facebook.react.bridge.UiThreadUtil
 import com.facebook.react.uimanager.ThemedReactContext
 import com.recyclerlist.model.LiveChannelTile
 import com.recyclerlist.model.LiveChannelType
@@ -22,9 +22,6 @@ import com.recyclerlist.utils.jsonToObject
 import com.recyclerlist.utils.toJson
 import com.recyclerlist.utils.updateStartAndEndTimes
 import kotlinx.coroutines.MainScope
-import java.text.SimpleDateFormat
-import java.time.Instant
-import java.util.Date
 
 class RecyclerList(private val context: ThemedReactContext) : RecyclerView(context), ItemActionListener<LiveChannelTile> {
   private val TAG = "RecyclerList"
@@ -38,10 +35,10 @@ class RecyclerList(private val context: ThemedReactContext) : RecyclerView(conte
   private val debounce = Debounce(MainScope())
   private val emitter = Emitter(context)
   private var intervalRunner: IntervalRunner? = null
+  private var focusedView: View? = null
 
   init {
     this.id = generateViewId()
-
   }
 
   override fun addOnAttachStateChangeListener(listener: OnAttachStateChangeListener?) {
@@ -138,11 +135,7 @@ class RecyclerList(private val context: ThemedReactContext) : RecyclerView(conte
     itemView.nextFocusLeftId = left
     itemView.nextFocusRightId = right
 
-  }
-
-  override fun onFocusChanged(gainFocus: Boolean, direction: Int, previouslyFocusedRect: Rect?) {
-    super.onFocusChanged(gainFocus, direction, previouslyFocusedRect)
-    Log.d(TAG, "onFocusChanged: $gainFocus $direction $previouslyFocusedRect")
+    this.focusedView = itemView
   }
 
   private fun findViewByPosition(position: Int?): View? {
@@ -153,7 +146,6 @@ class RecyclerList(private val context: ThemedReactContext) : RecyclerView(conte
     val visibleViews = mutableListOf<View>()
     val firstVisiblePosition = this.layoutManager.findFirstVisibleItemPosition()
     val lastVisiblePosition = this.layoutManager.findLastVisibleItemPosition()
-    Log.d(TAG, "getVisibleViews: firstVisiblePosition: $firstVisiblePosition lastVisiblePosition : ${lastVisiblePosition}")
     for (i in firstVisiblePosition..lastVisiblePosition) {
       findViewByPosition(i)?.let {
         visibleViews.add(it)
@@ -165,11 +157,22 @@ class RecyclerList(private val context: ThemedReactContext) : RecyclerView(conte
 
 
   private fun onProgressComplete(position: Int) {
+    //Update the next item
+    if (recyclerListAdapter?.getItemViewType(position) == RecyclerListAdapter.TYPE_GROUP_HEADER) return
+    val item = recyclerListAdapter?.getItem(position)
+    updateLiveChannelTile(item)?.let {
+      if(position == 1) {
+        recyclerListAdapter?.setItem(position, it)
+        UiThreadUtil.runOnUiThread {
+          recyclerListAdapter?.notifyItemChanged(position, item)
+        }
+      }
+    }
   }
 
 
   private fun updateProgress() {
-    intervalRunner = IntervalRunner(5000L) {
+    intervalRunner = IntervalRunner(2000L) {
       val visibleItems = getVisibleViews()
       visibleItems.forEach {
         if (it.isShown) {
@@ -186,7 +189,6 @@ class RecyclerList(private val context: ThemedReactContext) : RecyclerView(conte
               },
               position
             )
-
           }
         }
       }
@@ -197,7 +199,7 @@ class RecyclerList(private val context: ThemedReactContext) : RecyclerView(conte
     startTime: Long,
     endTime: Long,
     onProgressComplete: (Int) -> Unit,
-    onProgress :(Double) -> Unit,
+    onProgress: (Double) -> Unit,
     position: Int
   ) {
 
@@ -209,31 +211,113 @@ class RecyclerList(private val context: ThemedReactContext) : RecyclerView(conte
     if (currentTime >= endTime) {
       onProgress(1.0)
       onProgressComplete(position)
-    }else {
+    } else {
       onProgress(progress)
     }
   }
 
-
-  override fun onScrolled(dx: Int, dy: Int) {
-    super.onScrolled(dx, dy * 10)
+  private fun isExitingFocusUp(): Boolean {
+    val currentID = focusedView?.id ?: return false
+    val nextView = focusedView?.nextFocusUpId?.let { findViewById<View>(it) }
+    return nextView == null || currentID == nextView.id
   }
 
-//  private var lastKeyDownTime: Long = 0
-//  private val debounceInterval = 80L
-//
-//  override fun dispatchKeyEvent(event: KeyEvent?): Boolean {
-//    if (event?.keyCode == KeyEvent.KEYCODE_DPAD_DOWN || event?.keyCode == KeyEvent.KEYCODE_DPAD_UP) {
-//      val currentTime = System.currentTimeMillis()
-//      if ((currentTime - lastKeyDownTime) >= debounceInterval) {
-//        lastKeyDownTime = currentTime
-//        return false
-//      } else {
-//        return true
-//      }
-//    }
-//    return false
-//  }
+  private fun isExitingFocusDown(): Boolean {
+    val currentID = focusedView?.id ?: return false
+    val nextView = focusedView?.nextFocusDownId?.let { findViewById<View>(it) }
+    return nextView == null || currentID == nextView.id
+  }
+
+  private fun isExitingFocusLeft(): Boolean {
+    val currentID = focusedView?.id ?: return false
+    val nextView = focusedView?.nextFocusLeftId?.let { findViewById<View>(it) }
+    return nextView == null || currentID == nextView.id
+  }
+
+  private fun isExitingFocusRight(): Boolean {
+    val currentID = focusedView?.id ?: return false
+    val nextView = focusedView?.nextFocusRightId?.let { findViewById<View>(it) }
+    return nextView == null || currentID == nextView.id
+  }
+
+  override fun dispatchKeyEvent(event: KeyEvent?): Boolean {
+
+    if (event?.action == KeyEvent.ACTION_DOWN) {
+      when (event.keyCode) {
+        KeyEvent.KEYCODE_DPAD_DOWN -> {
+          if (isExitingFocusDown()) {
+            notifyExitDirection("down")
+            return true
+          }
+        }
+
+        KeyEvent.KEYCODE_DPAD_UP -> {
+          if (isExitingFocusUp()) {
+            notifyExitDirection("up")
+            return true
+          }
+        }
+
+        KeyEvent.KEYCODE_DPAD_LEFT -> {
+          if (isExitingFocusLeft()) {
+            notifyExitDirection("left")
+            return true
+          }
+        }
+
+        KeyEvent.KEYCODE_DPAD_RIGHT -> {
+          if (isExitingFocusRight()) {
+            notifyExitDirection("right")
+            return true
+          }
+        }
+      }
+    }
+
+    return super.dispatchKeyEvent(event)
+  }
+
+  private fun notifyExitDirection(event: String) {
+    val directionMap = Arguments.createMap().apply {
+      putString("direction", event)
+    }
+    emitter.emit("exitDirection", directionMap)
+  }
+
+
+  private fun updateLiveChannelTile(data: LiveChannelTile?): LiveChannelTile? {
+    // Return null if data is null
+    if (data == null) return null
+
+    // Create a deep copy of the data object
+    val tile = data.deepCopy()
+
+    when (data.type) {
+      LiveChannelType.ON_NOW.value -> {
+        data.liveShow?.let { liveShow ->
+          val liveShowEndTime = liveShow.endTime
+          tile.liveShow = data.schedule.find { show -> liveShowEndTime <= show.startTime }
+        }
+      }
+
+      LiveChannelType.ON_NEXT.value -> {
+        data.nextShow?.let { nextShow ->
+          val nextShowEndTime = nextShow.endTime
+          tile.nextShow = data.schedule.find { show -> nextShowEndTime <= show.startTime }
+        }
+      }
+
+      LiveChannelType.ON_LATER.value -> {
+        data.laterShow?.let { laterShow ->
+          val laterShowEndTime = laterShow.endTime
+          tile.laterShow = data.schedule.find { show -> laterShowEndTime <= show.startTime }
+        }
+      }
+    }
+
+    return tile
+  }
+
 
 }
 

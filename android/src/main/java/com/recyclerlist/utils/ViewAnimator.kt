@@ -9,7 +9,7 @@ import android.view.View
 class ViewAnimator {
 
   // Function to animate alpha (opacity) of a view with a completion callback
-  fun animateAlpha(view: View, fromAlpha: Float, toAlpha: Float, duration: Long, onAnimationEnd: (() -> Unit)?) {
+  fun animateAlpha(view: Object, fromAlpha: Float, toAlpha: Float, duration: Long, onAnimationEnd: (() -> Unit)? = null) {
     val alphaAnimator = ObjectAnimator.ofFloat(view, "alpha", fromAlpha, toAlpha)
     alphaAnimator.duration = duration
     alphaAnimator.addListener(object : AnimatorListenerAdapter() {

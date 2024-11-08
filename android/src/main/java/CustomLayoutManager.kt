@@ -16,7 +16,7 @@ class CustomLayoutManager(private val mContext: Context, spanCount: Int, @param:
 
 
   companion object {
-    private const val MILLISECONDS_PER_INCH = 200f
+    private const val MILLISECONDS_PER_INCH = 60f
   }
 
     override fun calculateExtraLayoutSpace(state: RecyclerView.State, extraLayoutSpace: IntArray) {
@@ -39,7 +39,7 @@ class CustomLayoutManager(private val mContext: Context, spanCount: Int, @param:
                 }
 
               override fun calculateTimeForScrolling(dx: Int): Int {
-                return super.calculateTimeForScrolling(dx )
+                return super.calculateTimeForScrolling(dx*3)
               }
 
                 override fun onStop() {
