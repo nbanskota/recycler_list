@@ -14,7 +14,8 @@ type RecyclerListProps = {
     itemSpan?: number[];
   };
   onItemPress?: (event: NativeSyntheticEvent<any>) => void;
-  onFocusChange?: (event: any) => void;
+  onItemFocusChange?: (event: any) => void;
+  exitDirection: (event: any) => void;
   style: ViewStyle;
 };
 
@@ -28,7 +29,8 @@ const RecyclerListView = ({
   data,
   config,
   onItemPress,
-  onFocusChange,
+  onItemFocusChange: onFocusChange,
+  exitDirection,
   style,
 }: RecyclerListProps) => {
   useEffect(() => {
@@ -48,10 +50,19 @@ const RecyclerListView = ({
         }
       }
     );
+    const subscription3 = DeviceEventEmitter.addListener(
+      'exitDirection',
+      (event) => {
+        if (exitDirection) {
+          exitDirection(event);
+        }
+      }
+    );
 
     return () => {
       subscription.remove();
       subscription2.remove();
+      subscription3.remove();
     };
   }, [onItemPress, onFocusChange]);
 
@@ -61,7 +72,8 @@ const RecyclerListView = ({
       data={data}
       config={config}
       onItemPress={onItemPress}
-      onFocusChange={onFocusChange}
+      onItemFocusChange={onFocusChange}
+      exitDirection={exitDirection}
     />
   );
 };

@@ -30,6 +30,9 @@ export default function App() {
   const handleFocusChange = (event: any) => {
     console.log({ focus: event.index });
   };
+  const handleFocusExit = (event: any) => {
+    console.log({ exitDirection: event });
+  };
 
   return (
     <View style={styles.container}>
@@ -41,7 +44,8 @@ export default function App() {
           itemSpan: [2, 1, 1],
         }}
         onItemPress={handleItemPress}
-        onFocusChange={handleFocusChange}
+        onItemFocusChange={handleFocusChange}
+        exitDirection={handleFocusExit}
         style={styles.recyclerView}
       />
     </View>
@@ -60,6 +64,6 @@ const styles = StyleSheet.create({
   recyclerView: {
     flex: 1,
     width: '100%',
-    overflow: 'visible',
+    overflow: 'hidden',
   },
 });
