@@ -1,0 +1,10 @@
+<!-- res/drawable/progress_bar_background.xml -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Background Layer (outer track) -->
+    <item android:id="@android:id/background">
+        <shape android:shape="rectangle">
+            <corners android:radius="16dp" />
+            <solid android:color="#E0E0E0"/> <!-- Light gray background color -->
+        </shape>
+    </item>
+</layer-list>

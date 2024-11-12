@@ -1,6 +1,8 @@
 package com.recyclerlist
 
+import android.content.res.ColorStateList
 import android.graphics.Color
+import android.graphics.PorterDuff
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -211,6 +213,7 @@ class RecyclerListAdapter(
       tagTextView.text = liveChannelTile.type
       progressBar.progress = ((System.currentTimeMillis() / 1000 - (data?.startTime ?: 0L)).toDouble() /
         ((data?.endTime ?: 1L) - (data?.startTime ?: 0L)).toDouble()).coerceIn(0.0, 1.0).times(100).toInt()
+      progressBar.progressTintList = ColorStateList.valueOf(Color.parseColor(liveChannelTile.color))
       try {
         Glide.with(logoImage.context)
           .load(liveChannelTile.logoUrl + "?image-profile=livetv_channel_logo")

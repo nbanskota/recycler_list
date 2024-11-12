@@ -1,9 +1,5 @@
 package com.recyclerlist.utils
 
-import android.animation.Animator
-import android.animation.ObjectAnimator
-import android.view.View
-import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.ReadableType
@@ -37,7 +33,6 @@ fun formatTimeRange(startTime: Long?, endTime: Long?): String? {
 
 fun ReadableMap.toJson(): String {
   val jsonObject = JSONObject()
-
   val keys = this.keySetIterator()
   while (keys.hasNextKey()) {
     val key = keys.nextKey()
@@ -71,36 +66,4 @@ fun ReadableArray.toJson(): JSONArray {
 inline fun <reified T> jsonToObject(json: String): T {
   val gson = Gson()
   return gson.fromJson(json, object : TypeToken<T>() {}.type)
-}
-
-
-fun animateViewOnPress(view: View) {
-  // Scale up animation
-  val scaleUpX = ObjectAnimator.ofFloat(view, "scaleX", 1f)
-  val scaleUpY = ObjectAnimator.ofFloat(view, "scaleY", 1f)
-
-  // Scale down animation
-  val scaleDownX = ObjectAnimator.ofFloat(view, "scaleX", 0.95f)
-  val scaleDownY = ObjectAnimator.ofFloat(view, "scaleY", 0.95f)
-
-  // Set duration for animations
-  scaleUpX.duration = 200
-  scaleUpY.duration = 200
-  scaleDownX.duration = 200
-  scaleDownY.duration = 200
-
-  // Start the scale up animation and then scale down
-  scaleDownX.start()
-  scaleDownY.start()
-
-  // Listener to start scale down after scaling up is complete
-  scaleDownX.addListener(object : Animator.AnimatorListener {
-    override fun onAnimationEnd(animation: Animator) {
-      scaleUpX.start()
-      scaleUpY.start()
-    }
-    override fun onAnimationStart(animation: Animator) {}
-    override fun onAnimationCancel(animation: Animator) {}
-    override fun onAnimationRepeat(animation: Animator) {}
-  })
 }

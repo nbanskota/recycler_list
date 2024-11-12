@@ -1,0 +1,10 @@
+<!-- res/drawable/progress_bar_inner.xml -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+  <!-- Progress Layer (inner progress) -->
+  <item android:id="@android:id/progress">
+    <shape android:shape="rectangle">
+      <corners android:radius="16dp" />
+      <solid android:color="@android:color/black" /> <!-- Green progress color -->
+    </shape>
+  </item>
+</layer-list>

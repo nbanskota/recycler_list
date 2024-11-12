@@ -4,10 +4,12 @@ import CustomLayoutManager
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
+import android.widget.Button
 import android.widget.ProgressBar
-import androidx.recyclerview.widget.DefaultItemAnimator
+import android.widget.RelativeLayout
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.VERTICAL
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.UiThreadUtil
@@ -23,7 +25,7 @@ import com.recyclerlist.utils.toJson
 import com.recyclerlist.utils.updateStartAndEndTimes
 import kotlinx.coroutines.MainScope
 
-class RecyclerList(private val context: ThemedReactContext) : RecyclerView(context), ItemActionListener<LiveChannelTile> {
+class RecyclerList(private val context: ThemedReactContext) : RelativeLayout(context), ItemActionListener<LiveChannelTile> {
   private val TAG = "RecyclerList"
   private var columnCount: Int = 1
   private var totalSpanCount: Int = 1
@@ -36,9 +38,24 @@ class RecyclerList(private val context: ThemedReactContext) : RecyclerView(conte
   private val emitter = Emitter(context)
   private var intervalRunner: IntervalRunner? = null
   private var focusedView: View? = null
+  private var recycelerView: RecyclerView
+  private var button: Button
 
   init {
     this.id = generateViewId()
+    val rootView = View.inflate(context, R.layout.layout_recycler_view, this)
+    recycelerView = rootView.findViewById(R.id.recycler_view)
+    button = rootView.findViewById(R.id.button_test)
+    this.recycelerView.setOnFocusChangeListener { v, hasFocus ->
+      if (hasFocus) {
+        focusedView?.requestFocus()
+            ?: if(this.recycelerView.findViewHolderForAdapterPosition(1) is RecyclerListAdapter.ItemViewHolder){
+              (this.recycelerView.findViewHolderForAdapterPosition(1) as RecyclerListAdapter.ItemViewHolder).itemView.requestFocus()
+            } else {
+            //  do nothign
+            }
+      }
+    }
   }
 
   override fun addOnAttachStateChangeListener(listener: OnAttachStateChangeListener?) {
@@ -53,7 +70,7 @@ class RecyclerList(private val context: ThemedReactContext) : RecyclerView(conte
       val objects = jsonToObject<RenderItem<LiveChannelTile>>(jsonString)
       items.add(objects)
     }
-    updateStartAndEndTimes(items)
+    updateStartAndEndTimes(items) //only for mocking
     this.items = items
     this.layoutManager = CustomLayoutManager(context, totalSpanCount, orientation, false)
     this.layoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
@@ -77,10 +94,10 @@ class RecyclerList(private val context: ThemedReactContext) : RecyclerView(conte
         return false
       }
     }
-    setLayoutManager(this.layoutManager)
+    this.recycelerView.setLayoutManager(this.layoutManager)
     this.recyclerListAdapter = RecyclerListAdapter(items, this)
     this.recyclerListAdapter?.setColumnCount(this.columnCount)
-    this.setAdapter(recyclerListAdapter)
+    this.recycelerView.setAdapter(recyclerListAdapter)
     updateProgress()
     intervalRunner?.start()
 
@@ -105,7 +122,7 @@ class RecyclerList(private val context: ThemedReactContext) : RecyclerView(conte
   override fun onItemFocusChanged(view: View, position: Int, isFocused: Boolean) {
     if (!isFocused) return
     setFocusMap(view, position)
-    this.layoutManager.smoothScrollToPositionWithDelay(this, null, position)
+    this.layoutManager.smoothScrollToPositionWithDelay(this.recycelerView, null, position)
     debounce.withDelay(100L) {
       val event = Arguments.createMap().apply {
         putInt("index", position)
@@ -139,7 +156,7 @@ class RecyclerList(private val context: ThemedReactContext) : RecyclerView(conte
   }
 
   private fun findViewByPosition(position: Int?): View? {
-    return position?.let { this.findViewHolderForAdapterPosition(it)?.itemView }
+    return position?.let { this.recycelerView.findViewHolderForAdapterPosition(it)?.itemView }
   }
 
   private fun getVisibleViews(): List<View> {
@@ -247,6 +264,7 @@ class RecyclerList(private val context: ThemedReactContext) : RecyclerView(conte
         KeyEvent.KEYCODE_DPAD_DOWN -> {
           if (isExitingFocusDown()) {
             notifyExitDirection("down")
+            button.requestFocus()
             return true
           }
         }
@@ -254,6 +272,7 @@ class RecyclerList(private val context: ThemedReactContext) : RecyclerView(conte
         KeyEvent.KEYCODE_DPAD_UP -> {
           if (isExitingFocusUp()) {
             notifyExitDirection("up")
+            button.requestFocus()
             return true
           }
         }
@@ -261,6 +280,7 @@ class RecyclerList(private val context: ThemedReactContext) : RecyclerView(conte
         KeyEvent.KEYCODE_DPAD_LEFT -> {
           if (isExitingFocusLeft()) {
             notifyExitDirection("left")
+            button.requestFocus()
             return true
           }
         }
@@ -268,6 +288,7 @@ class RecyclerList(private val context: ThemedReactContext) : RecyclerView(conte
         KeyEvent.KEYCODE_DPAD_RIGHT -> {
           if (isExitingFocusRight()) {
             notifyExitDirection("right")
+            button.requestFocus()
             return true
           }
         }

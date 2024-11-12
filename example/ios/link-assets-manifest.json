@@ -1,0 +1,57 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "assets/fonts/arial_regular.ttf",
+      "sha1": "ed3e64b6fbd7c83489b4a2e1b3d653968359a497"
+    },
+    {
+      "path": "assets/fonts/barlow_extrabold.ttf",
+      "sha1": "791524d5d693cfc48b44a482629d73d2add1bf01"
+    },
+    {
+      "path": "assets/fonts/barlow_medium.ttf",
+      "sha1": "5357f6606d811227fa2f477de3178ab5030c613f"
+    },
+    {
+      "path": "assets/fonts/barlow_regular.ttf",
+      "sha1": "a7d64a03c1dce5107e1a20f4d787df232b85a971"
+    },
+    {
+      "path": "assets/fonts/barlow_semibold.ttf",
+      "sha1": "3a5a9453e92b05358262eac56ce9a824e0bae75c"
+    },
+    {
+      "path": "assets/fonts/barlowcondensed_regular.ttf",
+      "sha1": "1f927b7200d555305c1b81fe0836bacc6b4c42c1"
+    },
+    {
+      "path": "assets/fonts/barlowsemicondensed_extrabold.ttf",
+      "sha1": "832fe75a7914158b0e37b9d61b65b6c9f8bae213"
+    },
+    {
+      "path": "assets/fonts/barlowsemicondensed_extrabold_regular.ttf",
+      "sha1": "130e8703f79617c88d9d70e4cfb64768da5411ce"
+    },
+    {
+      "path": "assets/fonts/barlowsemicondensed_medium.ttf",
+      "sha1": "82d8ae93d740a71f051ce4cf3c46193aa7289e69"
+    },
+    {
+      "path": "assets/fonts/barlowsemicondensed_medium_regular.ttf",
+      "sha1": "e88972f89560165c4d35d480da37f668b303a9d1"
+    },
+    {
+      "path": "assets/fonts/barlowsemicondensed_regular.ttf",
+      "sha1": "a09f71aaafa8bede8c931e9e1bb30ca433faaeaf"
+    },
+    {
+      "path": "assets/fonts/barlowsemicondensed_semibold.ttf",
+      "sha1": "1f4d02d104baaec157cd8926fd55451794b442b8"
+    },
+    {
+      "path": "assets/fonts/barlowsemicondensed_semibold_regular.ttf",
+      "sha1": "5ba856ebe27650574241f395a3f422f1e90f1e67"
+    }
+  ]
+}
