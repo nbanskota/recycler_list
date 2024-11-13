@@ -25,6 +25,7 @@ import com.recyclerlist.utils.Debounce
 import com.recyclerlist.utils.ViewAnimator
 import com.recyclerlist.utils.formatTimeRange
 import kotlinx.coroutines.MainScope
+import okhttp3.internal.notify
 
 
 class RecyclerListAdapter(
@@ -72,6 +73,12 @@ class RecyclerListAdapter(
     this.columnCount = count
   }
 
+  fun updateData(items: List<RenderItem<LiveChannelTile>>) {
+    this.items = items
+    notifyDataSetChanged()
+  }
+
+
   private fun createItemViewIndexMap() {
     var indexMap = mutableMapOf<Int, Int>() //item index and viewIndex
     var headerCounter = 0
@@ -90,9 +97,7 @@ class RecyclerListAdapter(
       holder.bind(items[getGroupPosition(position)], position)
     } else if (holder is ItemViewHolder) {
       holder.bind(getItem(position), actionListener, position)
-      debounce.withDelay(50L) {
-        createItemViewIndexMap()
-      }
+      createItemViewIndexMap()
     }
 
   }
@@ -139,7 +144,6 @@ class RecyclerListAdapter(
   }
 
   fun setItem(position: Int, item: LiveChannelTile) {
-    Log.d(TAG, "setItem: ${item.liveShow?.title}")
     var count = 0
     for (group in items) {
       if (position <= count + group.items.size) {
@@ -302,7 +306,7 @@ class RecyclerListAdapter(
     }
   }
 
-  private class LiveChannelTileCallback : DiffUtil.ItemCallback<LiveChannelTile>(){
+  private class LiveChannelTileCallback : DiffUtil.ItemCallback<LiveChannelTile>() {
     override fun areItemsTheSame(oldItem: LiveChannelTile, newItem: LiveChannelTile): Boolean {
       return oldItem.liveShow?.startTime == newItem.liveShow?.startTime
     }

@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'flex-end',
     transform: [{ scale: 1 }],
-    padding: 80,
+    padding: 0,
     backgroundColor: 'black',
   },
   recyclerView: {
