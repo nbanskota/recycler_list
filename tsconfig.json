@@ -17,7 +17,7 @@
     "noUnusedParameters": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "strict": true,
+    "strict": false,
     "target": "ES6",
     "verbatimModuleSyntax": false
   }

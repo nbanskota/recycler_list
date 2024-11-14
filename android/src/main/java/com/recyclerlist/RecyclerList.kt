@@ -4,16 +4,16 @@ import CustomLayoutManager
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
-import android.widget.LinearLayout
+import android.view.ViewGroup
 import android.widget.ProgressBar
-import android.widget.RelativeLayout
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.VERTICAL
 import com.facebook.react.bridge.Arguments
+import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.UiThreadUtil
 import com.facebook.react.uimanager.ThemedReactContext
+import com.facebook.react.uimanager.UIManagerModule
 import com.recyclerlist.model.LiveChannelTile
 import com.recyclerlist.model.LiveChannelType
 import com.recyclerlist.model.RenderItem
@@ -25,7 +25,7 @@ import com.recyclerlist.utils.toJson
 import com.recyclerlist.utils.updateStartAndEndTimes
 import kotlinx.coroutines.MainScope
 
-class RecyclerList(private val context: ThemedReactContext) : RelativeLayout(context), ItemActionListener<LiveChannelTile> {
+class RecyclerList(private val context: ReactApplicationContext) : RecyclerView(context), ItemActionListener<LiveChannelTile> {
   private val TAG = "RecyclerList"
   private var columnCount: Int = 1
   private var totalSpanCount: Int = 1
@@ -39,31 +39,24 @@ class RecyclerList(private val context: ThemedReactContext) : RelativeLayout(con
   private var intervalRunner: IntervalRunner? = null
   private var focusFinder: IntervalRunner? = null
   private var focusedView: View? = null
-  private var recyclerView: RecyclerView? = null
-  private var sudoView: View? = null
   private var regainFocusPosition = 1
+  private var isListFocused = false
 
-  private val sudoFocusChangeListener = OnFocusChangeListener { v, hasFocus ->
-    if (v is RecyclerView) {
-      Log.d(TAG, "RecyclerView Focused: $hasFocus")
-      sudoView?.clearFocus()
-    } else if (v is LinearLayout) {
-      Log.d(TAG, "RecyclerView Focused: $hasFocus")
-      recyclerView?.clearFocus()
-    }
+  private var topFocusableViewId: Int? = null
+  private var bottomFocusableViewId: Int? = null
+  private var leftFocusableViewId: Int? = null
+  private var rightFocusableViewId: Int? = null
 
-
-  }
 
   init {
     this.id = generateViewId()
-    val rootView = View.inflate(context, R.layout.layout_recycler_view, this)
-    recyclerView = rootView.findViewById(R.id.recycler_view)
-    sudoView = rootView.findViewById(R.id.sudo_view)
-
-    this.sudoView?.onFocusChangeListener = sudoFocusChangeListener
-    this.recyclerView?.onFocusChangeListener = sudoFocusChangeListener
-    focusFinderTimer()
+    this.apply {
+      layoutParams = ViewGroup.LayoutParams(
+        ViewGroup.LayoutParams.MATCH_PARENT,
+        ViewGroup.LayoutParams.MATCH_PARENT
+      )
+    }
+    focusFinder()
   }
 
   fun setData(data: ReadableArray) {
@@ -73,7 +66,7 @@ class RecyclerList(private val context: ThemedReactContext) : RelativeLayout(con
       val objects = jsonToObject<RenderItem<LiveChannelTile>>(jsonString)
       items.add(objects)
     }
-   // updateStartAndEndTimes(items) //only for mocking
+     updateStartAndEndTimes(items) //only for mocking
     this.items = items
     this.layoutManager = CustomLayoutManager(context, totalSpanCount, orientation, false)
     this.layoutManager?.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
@@ -97,18 +90,21 @@ class RecyclerList(private val context: ThemedReactContext) : RelativeLayout(con
         return false
       }
     }
-    this.recyclerView?.setLayoutManager(this.layoutManager)
+    this.setLayoutManager(this.layoutManager)
     this.recyclerListAdapter = RecyclerListAdapter(items, this)
     this.recyclerListAdapter?.setColumnCount(this.columnCount)
-    this.recyclerView?.setAdapter(recyclerListAdapter)
+    this.setAdapter(recyclerListAdapter)
     updateProgress()
     intervalRunner?.start()
 
 
   }
 
-  override fun requestChildFocus(child: View?, focused: View?) {
-    super.requestChildFocus(child, focused)
+  fun setSurroundingViews(topFocusableViewId: Int?, bottomFocusableViewId: Int?, leftFocusableViewId: Int?, rightFocusableViewId: Int?) {
+    this.topFocusableViewId = topFocusableViewId
+    this.bottomFocusableViewId = bottomFocusableViewId
+    this.leftFocusableViewId = leftFocusableViewId
+    this.rightFocusableViewId = rightFocusableViewId
   }
 
   fun setColumnCount(columns: Int, orientation: Int = VERTICAL, spans: ArrayList<Int> = arrayListOf()) {
@@ -129,9 +125,10 @@ class RecyclerList(private val context: ThemedReactContext) : RelativeLayout(con
 
   override fun onItemFocusChanged(view: View, position: Int, isFocused: Boolean) {
     if (!isFocused) return
+    isListFocused = true
     this.focusedView = view
     setFocusMap(view, position)
-    this.recyclerView?.let { this.layoutManager?.smoothScrollToPositionWithDelay(it, null, position) }
+     this.layoutManager?.smoothScrollToPositionWithDelay(this, null, position)
     debounce.withDelay(100L) {
       val event = Arguments.createMap().apply {
         putInt("index", position)
@@ -164,7 +161,7 @@ class RecyclerList(private val context: ThemedReactContext) : RelativeLayout(con
   }
 
   private fun findViewByPosition(position: Int?): View? {
-    return position?.let { this.recyclerView?.findViewHolderForAdapterPosition(it)?.itemView }
+    return position?.let { this.findViewHolderForAdapterPosition(it)?.itemView }
   }
 
   private fun getVisibleViews(): List<View> {
@@ -220,11 +217,11 @@ class RecyclerList(private val context: ThemedReactContext) : RelativeLayout(con
     }
   }
 
-  private fun focusFinderTimer() {
+  private fun focusFinder() {
     focusFinder = IntervalRunner(50L) {
       val views = getVisibleViews()
       if (views.isNotEmpty()) {
-        views[regainFocusPosition].post{
+        views[regainFocusPosition].post {
           views[regainFocusPosition].requestFocus()
         }
 
@@ -280,30 +277,35 @@ class RecyclerList(private val context: ThemedReactContext) : RelativeLayout(con
   }
 
   private fun sudoFocusView(direction: Int) {
+    isListFocused = false
 
-    when (direction) {
-      View.FOCUS_DOWN -> {
-        sudoView?.nextFocusUpId = focusedView?.id ?: recyclerView?.id ?: return
-      }
-
-      View.FOCUS_UP -> {
-        sudoView?.nextFocusDownId = focusedView?.id ?: recyclerView?.id ?: return
-      }
-
-      View.FOCUS_LEFT -> {
-        sudoView?.nextFocusRightId = focusedView?.id ?: recyclerView?.id ?: return
-      }
-
-      View.FOCUS_RIGHT -> {
-        sudoView?.nextFocusLeftId = focusedView?.id ?: recyclerView?.id ?: return
-      }
-
+    // Determine the next focusable view ID based on the direction
+    val nextFocusableViewId = when (direction) {
+      View.FOCUS_DOWN -> topFocusableViewId
+      View.FOCUS_UP -> bottomFocusableViewId
+      View.FOCUS_LEFT -> rightFocusableViewId
+      View.FOCUS_RIGHT -> leftFocusableViewId
+      else -> null
     }
-    sudoView?.requestFocus()
+
+    // If a valid next focusable view ID is found, resolve and request focus
+    nextFocusableViewId?.let { focusId ->
+      getResolvedViewSafely(focusId)?.apply {
+        when (direction) {
+          View.FOCUS_DOWN -> nextFocusUpId = focusedView?.id ?: focusId
+          View.FOCUS_UP -> nextFocusDownId = focusedView?.id ?: focusId
+          View.FOCUS_LEFT -> nextFocusRightId = focusedView?.id ?: focusId
+          View.FOCUS_RIGHT -> nextFocusLeftId = focusedView?.id ?: focusId
+        }
+        isFocusable = true
+        isFocusableInTouchMode = true
+        requestFocus()
+      }
+    }
   }
 
   override fun dispatchKeyEvent(event: KeyEvent?): Boolean {
-    if (event?.action == KeyEvent.ACTION_DOWN) {
+    if (event?.action == KeyEvent.ACTION_DOWN && isListFocused) {
       when (event.keyCode) {
         KeyEvent.KEYCODE_DPAD_DOWN -> {
           if (isExitingFocusDown()) {
@@ -350,11 +352,17 @@ class RecyclerList(private val context: ThemedReactContext) : RelativeLayout(con
   }
 
 
-  private fun updateLiveChannelTile(data: LiveChannelTile?): LiveChannelTile? {
-    // Return null if data is null
-    if (data == null) return null
+  private fun getResolvedViewSafely(target: Int): ViewGroup? {
+    try {
+      val uiManager = context.getNativeModule(UIManagerModule::class.java)
+      return let { uiManager?.resolveView(target) } as? ViewGroup
+    } catch (e: Exception) {
+      return null
+    }
+  }
 
-    // Create a deep copy of the data object
+  private fun updateLiveChannelTile(data: LiveChannelTile?): LiveChannelTile? {
+    if (data == null) return null
     val tile = data.deepCopy()
 
     when (data.type) {

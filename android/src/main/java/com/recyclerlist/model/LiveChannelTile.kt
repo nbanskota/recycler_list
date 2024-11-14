@@ -49,7 +49,6 @@ data class LiveChannelTile(
       isMemberGated = this.isMemberGated
     )
   }
-
 }
 
 enum class LiveChannelType(val value: String) {

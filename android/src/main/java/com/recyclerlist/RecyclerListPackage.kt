@@ -14,6 +14,6 @@ class RecyclerListPackage : ReactPackage {
 
 
   override fun createViewManagers(reactContext: ReactApplicationContext): List<ViewManager<*, *>> {
-    return listOf(RecyclerListViewManager())
+    return listOf(RecyclerListViewManager(reactContext))
   }
 }

@@ -2,7 +2,6 @@ package com.recyclerlist
 
 import android.content.res.ColorStateList
 import android.graphics.Color
-import android.graphics.PorterDuff
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -15,7 +14,6 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.facebook.react.bridge.UiThreadUtil
 import com.recyclerlist.components.setBorder
 import com.recyclerlist.model.LiveChannelTile
 import com.recyclerlist.model.LiveChannelType
@@ -25,7 +23,6 @@ import com.recyclerlist.utils.Debounce
 import com.recyclerlist.utils.ViewAnimator
 import com.recyclerlist.utils.formatTimeRange
 import kotlinx.coroutines.MainScope
-import okhttp3.internal.notify
 
 
 class RecyclerListAdapter(
