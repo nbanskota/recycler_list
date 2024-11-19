@@ -56,6 +56,7 @@ class RecyclerList(private val context: ReactApplicationContext) : RecyclerView(
         ViewGroup.LayoutParams.MATCH_PARENT
       )
     }
+
     focusFinder()
   }
 
@@ -112,6 +113,10 @@ class RecyclerList(private val context: ReactApplicationContext) : RecyclerView(
     this.totalSpanCount = spans.sumOf { it }
     this.isGridLayout = columns != 1
     this.orientation = orientation
+  }
+
+  private fun setRecyclerView(){
+
   }
 
   override fun onItemClicked(item: LiveChannelTile, index: Int) {

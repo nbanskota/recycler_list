@@ -16,6 +16,8 @@ class RecyclerListViewManager(private val applicationContext: ReactApplicationCo
   private val TAG = "RecyclerListViewManager"
   override fun getName() = "RecyclerListView"
   private lateinit var recyclerListView: RecyclerList
+  private var isConfigSet = false
+  private var readableData: ReadableArray? = null
 
   companion object {
     const val ON_ITEM_PRESS: String = "onItemPress"
@@ -80,7 +82,8 @@ class RecyclerListViewManager(private val applicationContext: ReactApplicationCo
 
   @ReactProp(name = "data")
   fun setData(view: RecyclerList, data: ReadableArray) {
-    view.setData(data)
+    this.readableData = data
+    if (isConfigSet) view.setData(data)
   }
 
   // Add a method to set the column count from React Native
@@ -108,6 +111,8 @@ class RecyclerListViewManager(private val applicationContext: ReactApplicationCo
     }
     Log.d("RecyclerList", "setColumnCount: $columnCount $direction $spans")
     view.setColumnCount(columnCount, direction, spans)
+    isConfigSet = true
+    if(readableData != null ) view.setData(readableData!!)
   }
 
 
